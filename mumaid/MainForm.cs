@@ -12,12 +12,17 @@ namespace mumaid
 
     public partial class MainForm : Form
     {
+        private ListViewColumnSorter lvwColumnSorter;
+
         public MainForm()
         {
             InitializeComponent();
 
             NativeMethods.SetWindowTheme(tabPage1_listView1, "explorer", null);
             NativeMethods.SetWindowTheme(tabPage2_listView1, "explorer", null);
+            lvwColumnSorter = new ListViewColumnSorter();
+            tabPage1_listView1.ListViewItemSorter = lvwColumnSorter;
+            tabPage2_listView1.ListViewItemSorter = lvwColumnSorter;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -35,6 +40,8 @@ namespace mumaid
             this.UseWaitCursor = true;
             Application.DoEvents();
 
+            tabPage1_listView1.BeginUpdate();
+            tabPage1_listView1.ListViewItemSorter = null;
             tabPage1_listView1.Items.Clear();
 
             var parser = new BencodeParser();
@@ -53,7 +60,8 @@ namespace mumaid
             }
 
             tabPage2_listView1.BeginUpdate();
-            var listViewItemCollection = new ListView.ListViewItemCollection(tabPage1_listView1);
+            tabPage2_listView1.ListViewItemSorter = null;
+            tabPage2_listView1.Items.Clear();
             foreach ( var fileinfo in torrents ) {
                 if ( resume.TryGetValue(fileinfo.Name, out IBObject o) ) {
                     var entry = (BDictionary)o;
@@ -80,9 +88,10 @@ namespace mumaid
                     tabPage2_listView1.Items.Add(item);
                 }
             }
+            tabPage2_listView1.ListViewItemSorter = lvwColumnSorter;
+            tabPage2_listView1.Sort();
             tabPage2_listView1.EndUpdate();
 
-            tabPage1_listView1.BeginUpdate();
             foreach ( var kvp in files ) {
                 var fileinfo = kvp.Value;
                 if ( fileinfo.Extension == ".!ut" )
@@ -97,6 +106,8 @@ namespace mumaid
                 item.Tag = fileinfo;
                 tabPage1_listView1.Items.Add(item);
             }
+            tabPage1_listView1.ListViewItemSorter = lvwColumnSorter;
+            tabPage1_listView1.Sort();
             tabPage1_listView1.EndUpdate();
 
             this.UseWaitCursor = false;
@@ -142,6 +153,26 @@ namespace mumaid
                 item.Remove();
             }
             tabPage2_listView1.EndUpdate();
+        }
+
+        private void ListView_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            // Determine if clicked column is already the column that is being sorted.
+            if ( e.Column == lvwColumnSorter.SortColumn ) {
+                // Reverse the current sort direction for this column.
+                if ( lvwColumnSorter.Order == SortOrder.Ascending ) {
+                    lvwColumnSorter.Order = SortOrder.Descending;
+                } else {
+                    lvwColumnSorter.Order = SortOrder.Ascending;
+                }
+            } else {
+                // Set the column number that is to be sorted; default to ascending.
+                lvwColumnSorter.SortColumn = e.Column;
+                lvwColumnSorter.Order = SortOrder.Ascending;
+            }
+
+            // Perform the sort with these new sort options.
+            ((ListView)sender).Sort();
         }
     }
 }

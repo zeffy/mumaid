@@ -148,6 +148,7 @@
             this.tabPage1_listView1.TabIndex = 0;
             this.tabPage1_listView1.UseCompatibleStateImageBehavior = false;
             this.tabPage1_listView1.View = System.Windows.Forms.View.Details;
+            this.tabPage1_listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.ListView_ColumnClick);
             this.tabPage1_listView1.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.tabPage1_listView1_ItemSelectionChanged);
             // 
             // columnHeader1
@@ -210,6 +211,7 @@
             this.tabPage2_listView1.TabIndex = 0;
             this.tabPage2_listView1.UseCompatibleStateImageBehavior = false;
             this.tabPage2_listView1.View = System.Windows.Forms.View.Details;
+            this.tabPage2_listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.ListView_ColumnClick);
             this.tabPage2_listView1.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.tabPage2_listView1_ItemSelectionChanged);
             // 
             // columnHeader5
