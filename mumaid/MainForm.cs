@@ -46,8 +46,10 @@ namespace mumaid
 
             var files = new Dictionary<string, FileInfo>();
             foreach ( var dir in textBox2.Text.Split(';') ) {
-                foreach ( var fileinfo in new DirectoryInfo(dir).EnumerateFiles("*", SearchOption.AllDirectories) )
-                    files.Add(fileinfo.FullName, fileinfo);
+                if ( Directory.Exists(dir) ) {
+                    foreach ( var fileinfo in new DirectoryInfo(dir).EnumerateFiles("*", SearchOption.AllDirectories) )
+                        files.Add(fileinfo.FullName, fileinfo);
+                }
             }
 
             tabPage2_listView1.BeginUpdate();
