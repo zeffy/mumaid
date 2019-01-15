@@ -44,44 +44,57 @@ namespace mumaid
                 "uTorrent"));
             var torrents = directoryInfo.EnumerateFiles("*.torrent");
 
-            var downloadFolders = textBox2.Text.Split(';');
-            var files = new List<string>();
-            foreach ( var dir in downloadFolders )
-                files.AddRange(Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories));
+            var files = new Dictionary<string, FileInfo>();
+            foreach ( var dir in textBox2.Text.Split(';') ) {
+                foreach ( var fileinfo in new DirectoryInfo(dir).EnumerateFiles("*", SearchOption.AllDirectories) )
+                    files.Add(fileinfo.FullName, fileinfo);
+            }
 
-            var files2 = new List<string>();
             tabPage2_listView1.BeginUpdate();
-            foreach ( var t in torrents ) {
-                if ( resume.TryGetValue(t.Name, out IBObject value) ) {
-                    string path = ((BDictionary)value)["path"].ToString();
+            var listViewItemCollection = new ListView.ListViewItemCollection(tabPage1_listView1);
+            foreach ( var fileinfo in torrents ) {
+                if ( resume.TryGetValue(fileinfo.Name, out IBObject o) ) {
+                    var entry = (BDictionary)o;
 
-                    var torrent = parser.Parse<Torrent>(t.FullName);
+                    var torrent = parser.Parse<Torrent>(fileinfo.FullName);
 
                     switch ( torrent.FileMode ) {
                     case TorrentFileMode.Single:
-                        files2.Add(path);
+                        files.Remove(entry["path"].ToString());
                         break;
                     case TorrentFileMode.Multi:
                         foreach ( var file in torrent.Files )
-                            files2.Add(Path.Combine(path, file.FullPath));
+                            files.Remove(Path.Combine(entry["path"].ToString(), file.FullPath));
                         break;
-                    default: break;
                     }
                 } else {
-                    var item = new ListViewItem(new string[] {
-                        t.Name,
-                        t.LastWriteTime.ToShortDateString(),
-                        t.Extension,
-                        NativeMethods.StrFormatByteSize(t.Length)
+                    var item = new ListViewItem(new[] {
+                        fileinfo.Name,
+                        fileinfo.LastWriteTime.ToString("g"),
+                        fileinfo.Extension,
+                        NativeMethods.StrFormatByteSize(fileinfo.Length)
                     });
-                    item.Tag = t;
+                    item.Tag = fileinfo;
                     tabPage2_listView1.Items.Add(item);
                 }
             }
             tabPage2_listView1.EndUpdate();
+
             tabPage1_listView1.BeginUpdate();
-            foreach ( var file in files.Except(files2) )
-                tabPage1_listView1.Items.Add(file);
+            foreach ( var kvp in files ) {
+                var fileinfo = kvp.Value;
+                if ( fileinfo.Extension == ".!ut" )
+                    continue;
+
+                var item = new ListViewItem(new[] {
+                    fileinfo.FullName,
+                    fileinfo.LastWriteTime.ToString("g"),
+                    fileinfo.Extension,
+                    NativeMethods.StrFormatByteSize(fileinfo.Length)
+                });
+                item.Tag = fileinfo;
+                tabPage1_listView1.Items.Add(item);
+            }
             tabPage1_listView1.EndUpdate();
 
             this.UseWaitCursor = false;

@@ -180,7 +180,7 @@
             this.tabPage1_button1.TabIndex = 2;
             this.tabPage1_button1.Text = "Delete selected files";
             this.tabPage1_button1.UseVisualStyleBackColor = true;
-            this.tabPage1_button1.Click += new System.EventHandler(this.tabPage2_button1_Click);
+            this.tabPage1_button1.Click += new System.EventHandler(this.tabPage1_button1_Click);
             // 
             // tabPage2
             // 
@@ -242,7 +242,7 @@
             this.tabPage2_button1.TabIndex = 1;
             this.tabPage2_button1.Text = "Delete selected .torrents";
             this.tabPage2_button1.UseVisualStyleBackColor = true;
-            this.tabPage2_button1.Click += new System.EventHandler(this.tabPage1_button1_Click);
+            this.tabPage2_button1.Click += new System.EventHandler(this.tabPage2_button1_Click);
             // 
             // MainForm
             // 
